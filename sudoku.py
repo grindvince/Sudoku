@@ -20,14 +20,13 @@ class Sudoku:
         self.grid_original = [[self.grid[x][y] for y in range(len(self.grid[0]))] for x in range(len(self.grid))]
 
     def display(self): # fonction remplissage grille
-        for y in range(9):
-            print (self.grid[y])
-        print("\n")
+        # for y in range(9):
+        #     print (self.grid[y])
+        # print("\n")
         for i in range(0, len(self.grid[0])):
             for j in range(0, len(self.grid[0])):
+                self.erase_box(i,j)
                 if(0<self.grid[i][j]<10):
-                    # value = myfont.render(str(self.grid[i][j]), True, red)
-                    # window.blit(value, ((j+1)*box_size + 15, (i+1)*box_size ))
                     self.fill_box(self.grid[i][j],i,j,red)
 
         pygame.display.update()
@@ -98,6 +97,7 @@ for i in range(0,10):
 pygame.display.update()
 
 Sudoku_1 = Sudoku()
+solved = 0
 Sudoku_1.display()
 
 
@@ -108,8 +108,12 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.KEYDOWN:
-            Sudoku_1.solve()
-            # Sudoku_1.display()
-
+            if solved == 0:
+                Sudoku_1.solve()
+                solved = 1
+            else:
+                Sudoku_1 = Sudoku()
+                solved = 0
+                Sudoku_1.display()
 
 pygame.quit()
