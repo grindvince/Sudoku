@@ -2,44 +2,92 @@ from random import choice
 import requests
 import pygame
 
-
-background_color = (8, 32, 50)
-red = (255, 76, 41)
-blue_clear = (51, 71, 86)
-blue_dark = (44, 57, 75)
-box_size = 50
-buffer = 5
-
-
-
 class Sudoku:
     def __init__(self):
+
+        self.background_color = (8, 32, 50)
+        self.red = (255, 76, 41)
+        self.blue_clear = (51, 71, 86)
+        self.blue_dark = (44, 57, 75)
+        self.box_size = 50
+        self.buffer = 5
+        self.title = "Sudoku Solver"
         
+        self.solved = False
+        self.running = True
+        self.start()
+
+    def start(self): # On instancie pygame et on crée la fenetre et on dessine puis telecharge et remplit la grille initiale
+        pygame.init()
+        self.window = pygame.display.set_mode((self.box_size * 11,self.box_size * 11))
+        pygame.display.set_caption(self.title)
+        self.window.fill(self.background_color)
+        self.myfont = pygame.font.SysFont('Comic Sans MS', self.box_size - 15)
+        for i in range(0,10):
+                if(i%3 == 0):
+                    line_colour = self.blue_clear
+                    line_thickness = 3
+                else:
+                    line_colour = self.blue_dark
+                    line_thickness = 1
+
+                pygame.draw.line(self.window, (line_colour), (self.box_size + self.box_size*i, self.box_size), (self.box_size + self.box_size*i ,self.box_size * 10 ), line_thickness )
+                pygame.draw.line(self.window, (line_colour), (self.box_size, self.box_size + self.box_size*i), (self.box_size * 10, self.box_size + self.box_size*i), line_thickness )
+
         response = requests.get("https://sugoku.herokuapp.com/board?difficulty=hard") 
         self.grid = response.json()['board']
-        self.grid_original = [[self.grid[x][y] for y in range(len(self.grid[0]))] for x in range(len(self.grid))]
+        self.grid_original = [[self.grid[x][y] for y in range(len(self.grid[0]))] for x in range(len(self.grid))] #conservation de la grille d'origine, inutile pour le moment
 
-    def display(self): # fonction remplissage grille
-        # for y in range(9):
-        #     print (self.grid[y])
-        # print("\n")
+        self.fill_grid()
+        self.run()
+
+    def run(self):
+        while self.running:
+            for event in pygame.event.get():
+                self.manage_events(event)
+
+        self.quit()
+
+    def manage_events(self,event):
+        if event.type == pygame.QUIT:
+            self.running = False
+        if event.type == pygame.KEYDOWN:
+            if self.solved == False:
+                self.solve()
+                self.solved = True
+            else:
+                self.solved = False
+                self.start()
+
+    def update(sefl):
+        pygame.display.update()
+
+    def quit(self):
+        pygame.quit()
+
+
+    def fill_grid(self,color = None): # fonction remplissage grille
+        if color == None:
+            color = self.red
         for i in range(0, len(self.grid[0])):
             for j in range(0, len(self.grid[0])):
                 self.erase_box(i,j)
                 if(0<self.grid[i][j]<10):
-                    self.fill_box(self.grid[i][j],i,j,red)
+                    self.fill_box(self.grid[i][j],i,j,color)
 
-        pygame.display.update()
+        self.update
 
     def erase_box(self,x,y): # effacer une case
-        pygame.draw.rect(window, background_color, ((y+1) * box_size + buffer, (x+1) * box_size+ buffer, box_size -2*buffer ,  box_size - 2*buffer))
-        pygame.display.update()
+        pygame.draw.rect(self.window, self.background_color, ((y+1) * self.box_size + self.buffer, (x+1) * self.box_size+ self.buffer, self.box_size -2*self.buffer ,  self.box_size - 2*self.buffer))
+        self.update()
 
-    def fill_box(self,i ,x ,y,color = blue_clear): # remplir une case
+    def fill_box(self,i ,x ,y,color = None): # remplir une case
+        if color == None:
+            color = self.blue_dark
         self.erase_box(x,y)
-        value = myfont.render(str(i), True, color)
-        window.blit(value, ((y+1)*box_size + 15, (x+1)*box_size ))
-        pygame.display.update()
+        value = self.myfont.render(str(i), True, color)
+        self.window.blit(value, ((y+1)*self.box_size + 15, (x+1)*self.box_size ))
+        self.update()
        
     def solve(self): #solution avec backtracking
         find = self.find_empty()
@@ -79,41 +127,5 @@ class Sudoku:
                     test.remove(self.grid[y//3*3+j][x//3*3+i])
         return test
 
-pygame.init()
-window = pygame.display.set_mode((box_size * 11,box_size * 11))
-pygame.display.set_caption("Sudoku Solver")
-window.fill(background_color)
-myfont = pygame.font.SysFont('Comic Sans MS', box_size - 15)
-for i in range(0,10):
-        if(i%3 == 0):
-            line_colour = blue_clear
-            line_thickness = 3
-        else:
-            line_colour = blue_dark
-            line_thickness = 1
-
-        pygame.draw.line(window, (line_colour), (box_size + box_size*i, box_size), (box_size + box_size*i ,box_size * 10 ), line_thickness )
-        pygame.draw.line(window, (line_colour), (box_size, box_size + box_size*i), (box_size * 10, box_size + box_size*i), line_thickness )
-pygame.display.update()
-
-Sudoku_1 = Sudoku()
-solved = 0
-Sudoku_1.display()
-
-
-running = True
-
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        if event.type == pygame.KEYDOWN:
-            if solved == 0:
-                Sudoku_1.solve()
-                solved = 1
-            else:
-                Sudoku_1 = Sudoku()
-                solved = 0
-                Sudoku_1.display()
-
-pygame.quit()
+if __name__ == "__main__":
+    Sudoku_1 = Sudoku()
