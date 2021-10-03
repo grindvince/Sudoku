@@ -6,9 +6,9 @@ class Sudoku:
     def __init__(self):
 
         self.background_color = (8, 32, 50)
-        self.red = (255, 76, 41)
-        self.blue_clear = (51, 71, 86)
-        self.blue_dark = (44, 57, 75)
+        self.accent_color = (255, 76, 41)
+        self.clear_color = (51, 71, 86)
+        self.dark_color = (44, 57, 75)
         self.box_size = 50
         self.buffer = 5
         self.title = "Sudoku Solver"
@@ -25,10 +25,10 @@ class Sudoku:
         self.myfont = pygame.font.SysFont('Comic Sans MS', self.box_size - 15)
         for i in range(0,10):
                 if(i%3 == 0):
-                    line_colour = self.blue_clear
+                    line_colour = self.clear_color
                     line_thickness = 3
                 else:
-                    line_colour = self.blue_dark
+                    line_colour = self.dark_color
                     line_thickness = 1
 
                 pygame.draw.line(self.window, (line_colour), (self.box_size + self.box_size*i, self.box_size), (self.box_size + self.box_size*i ,self.box_size * 10 ), line_thickness )
@@ -68,7 +68,7 @@ class Sudoku:
 
     def fill_grid(self,color = None): # fonction remplissage grille
         if color == None:
-            color = self.red
+            color = self.accent_color
         for i in range(0, len(self.grid[0])):
             for j in range(0, len(self.grid[0])):
                 self.erase_box(i,j)
@@ -83,7 +83,7 @@ class Sudoku:
 
     def fill_box(self,i ,x ,y,color = None): # remplir une case
         if color == None:
-            color = self.blue_dark
+            color = self.dark_color
         self.erase_box(x,y)
         value = self.myfont.render(str(i), True, color)
         self.window.blit(value, ((y+1)*self.box_size + 15, (x+1)*self.box_size ))
